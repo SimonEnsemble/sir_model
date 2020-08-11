@@ -1,0 +1,59 @@
+lines.linewidth: 3
+lines.markeredgewidth: 0
+
+patch.linewidth: 0.5
+patch.facecolor: 348ABD  # blue
+patch.edgecolor: none
+patch.antialiased: True
+
+font.family: Open Sans
+font.size: 14.0
+
+# axes.facecolor: (1.00, 0.898, 0.953, 0.1)
+axes.facecolor: (1.0, 1.0, 1.0)
+axes.edgecolor: (0.996, 0.961, 0.98, 0.1)
+axes.linewidth: 2
+axes.grid: True
+axes.titlesize: x-large
+axes.labelsize: large
+axes.labelcolor: 555555
+axes.axisbelow: True  # grid/ticks are below elements (e.g., lines, text)
+
+# sns.color_palette("Set2")
+# axes.prop_cycle: cycler('color', [(0.4, 0.7607843137254902, 0.6470588235294118), (0.9882352941176471, 0.5529411764705883, 0.3843137254901961), (0.5529411764705883, 0.6274509803921569, 0.796078431372549), (0.9058823529411765, 0.5411764705882353, 0.7647058823529411), (0.6509803921568628, 0.8470588235294118, 0.32941176470588235), (1.0, 0.8509803921568627, 0.1843137254901961), (0.8980392156862745, 0.7686274509803922, 0.5803921568627451), (0.7019607843137254, 0.7019607843137254, 0.7019607843137254)])
+
+# distinguishable_colors(n, LCHab(70, 60, 240),
+#                              transform=c -> deuteranopic(c, 0.5),
+#                              lchoices=Float64[65, 70, 75, 80],
+#                              cchoices=Float64[0, 50, 60, 70],
+#                              hchoices=range(0, 330, length=24))
+
+# to_string(rgb) = @sprintf("(%f, %f, %f)", rgb.r, rgb.g, rgb.b)
+# s = "["
+# counter = 0
+# for rgb in RGB.(c)
+#     counter += 1
+#     s *= to_string(rgb)
+#     if counter != n
+#         s *= ", "
+#     end
+# end
+# s *= "]"
+axes.prop_cycle: cycler('color', [(0.000000, 0.747369, 1.000000), (0.830929, 0.793470, 0.225663), (1.000000, 0.426407, 0.681544), (0.000000, 0.716877, 0.554419), (0.745987, 0.663119, 1.000000), (1.000000, 0.403746, 0.397903), (0.777758, 0.777758, 0.777758), (0.390012, 0.874158, 0.457877), (0.000002, 0.902419, 0.828187), (0.911496, 0.438927, 0.868371), (0.575522, 0.652245, 0.284931), (1.000000, 0.605656, 0.293939)])
+
+xtick.color: 555555
+xtick.direction: out
+
+ytick.color: 555555
+ytick.direction: out
+
+grid.color: 0.86
+ # grid.color: D1D9FF
+grid.linestyle: -    # solid line
+
+figure.facecolor: white
+figure.edgecolor: 0.50
+
+# Fix export bug
+pdf.fonttype: 42
+ps.fonttype: 42
