@@ -95,7 +95,7 @@ begin
 	sm = PyPlot.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=0.0, vmax=t_max))
 	colorbar(sm, cax=cax, label=L"time, $(\gamma+\mu)t$", extend="max")
 	tight_layout()
-	savefig("sir_with_demographics.pdf", format="pdf")
+	savefig("sir_with_demographics.pdf", format="pdf", bbox_inches="tight")
 	gcf()
 end
 
