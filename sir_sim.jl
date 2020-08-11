@@ -44,7 +44,7 @@ md"## herd immunity"
 
 # ╔═╡ 988e2cdc-db85-11ea-006e-398146591b74
 begin
-	using DifferentialEquations, PyPlot, Roots, Statistics, LightGraphs, Printf
+	using DifferentialEquations, PyPlot, Roots, Printf
 	PyPlot.matplotlib.style.use("grandbudapest.mplstyle")
 	PyPlot.matplotlib.font_manager.fontManager.addfont("OpenSans-Regular.ttf")
 	
