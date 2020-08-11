@@ -125,7 +125,7 @@ begin
 	text(2.5, 0.5, 
 		sim_settings, bbox=bbox_props,
 	    va="center")
-#	title(L"SIR model dynamics, $\mathcal{R}_0=$" * @sprintf("%.1f", R₀))
+	title("SIR model dynamics")
 	# legend(title=L"$\mathcal{R}_0=$" * @sprintf("%.2f", R0))
 	tight_layout()
 	savefig("sir_dynamics.pdf", format="pdf")
@@ -146,7 +146,7 @@ begin
 	text(2.5, 0.5, 
 		sim_settings, #bbox=bbox_props,
 		va="center")
-#	title(L"SIR model dynamics, $\mathcal{R}_0=$" * @sprintf("%.1f", R₀))
+	title("SIR model dynamics")
 	tight_layout()
 	savefig("sir_dynamics_sum_1.pdf", format="pdf")
 	gcf()
@@ -203,7 +203,7 @@ begin
 	fill_between([0.0, 1.0], [1, 0], [1, 1], color="0.8")
 	xlabel(L"$[$S$](t)$")
 	ylabel(L"$[$I$](t)$")
-#	title(L"phase plane, $\mathcal{R}_0=$" * @sprintf("%.1f", R₀))
+	title("phase plane")
 	sm = PyPlot.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=0.0, vmax=t_max))
 	colorbar(sm, label=L"non-dimensional time, $\gamma t$", extend="max")
 	

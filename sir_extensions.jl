@@ -94,6 +94,8 @@ begin
 
 	sm = PyPlot.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=0.0, vmax=t_max))
 	colorbar(sm, cax=cax, label=L"time, $(\gamma+\mu)t$", extend="max")
+	tight_layout()
+	savefig("sir_with_demographics.pdf", format="pdf")
 	gcf()
 end
 
@@ -161,7 +163,7 @@ begin
 	title("stochastic SIR model dynamics")
 	# legend(title=L"$\mathcal{R}_0=$" * @sprintf("%.2f", R0))
 	tight_layout()
-	savefig("stochastic_sir_R0.pdf", format="pdf")
+	savefig("stochastic_sir.pdf", format="pdf")
 	gcf()
 end
 
