@@ -174,12 +174,12 @@ begin
 	g = erdos_renyi(nv, ne)
 	
 	# make superspreader
-	for k = 1:8
+	for k = 1:10
 	    add_edge!(g, 1, rand(1:nv))
 	end
 	
-	nodefillc = [RGB(0.2, 0.8, 0.2) for i = 1:nv]
-	nodefillc[1] = RGB(0.9765625, 0.5, 0.4453125)
+	nodefillc = [RGB(0.000000, 0.716877, 0.554419) for i = 1:nv]
+	nodefillc[1] = RGB(1.000000, 0.403746, 0.397903)
 	gp = gplot(g, nodefillc=nodefillc)
 end
 
@@ -199,6 +199,6 @@ end
 # ╟─9fbb2a38-db9d-11ea-26df-2789729490b3
 # ╠═684f7776-db9e-11ea-2dbc-85773151febb
 # ╠═8cfa38e8-db9e-11ea-09a2-a366b1fcc94d
-# ╠═d30011b2-db9e-11ea-0a84-77f66c5de33b
+# ╟─d30011b2-db9e-11ea-0a84-77f66c5de33b
 # ╠═c829589a-db9e-11ea-398e-8139432eedc6
 # ╠═51c07944-db9f-11ea-35e3-d9ab257b6bd6
