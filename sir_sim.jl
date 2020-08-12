@@ -37,13 +37,10 @@ md"finally, a viz of the dynamics in the phase plane."
 md"one more thing. let's look at the exponential growth (of $[I](t)$) phase"
 
 # ╔═╡ 2e1599f6-db96-11ea-2a83-e3e8a3213e4e
-md"## peak prevalence, final size as a function of $\mathcal{R}_0$"
+md"## peak prevalence, final size, time to peak prevalence as a function of $\mathcal{R}_0$"
 
 # ╔═╡ 3dd997b8-db97-11ea-3fdf-33ba59dcdce6
 md"## herd immunity"
-
-# ╔═╡ d54ba48e-dc56-11ea-0ac4-8d213422f65f
-md"### find time to peak infection"
 
 # ╔═╡ 988e2cdc-db85-11ea-006e-398146591b74
 begin
@@ -174,7 +171,7 @@ begin
 	
 	t_max = 15.0
 	
-	figure(figsize=(8, 7))
+	figure()# figsize=(7.2, 5.4))
 	plot(s, i, color="C4")
 	for k = 1:length(s)-1
 	    plot(s[k:k+1], -s[k:k+1] .+ log.(s[k:k+1]) / R₀ .+ 1, 
@@ -197,7 +194,7 @@ begin
 		      L"$([$S$]_\infty, 0)$"
 	]
 	dxs = [-0.14, -0.0, -0.1]
-	dys = [0.175, 0.15, 0.15]
+	dys = [0.185, 0.19, 0.14]
 	legend_not_annotate = false
 	for k = 1:3
 		plot(xys[k][1], xys[k][2], marker="X", markersize=7, clip_on=false, 
@@ -225,7 +222,7 @@ begin
 			sim_settings, #bbox=bbox_props,
 			va="center")
 	else
-		text(0.65, 0.85, 
+		text(0.575, 0.85, 
 			sim_settings, #bbox=bbox_props,
 			va="center")
 	end
@@ -244,9 +241,9 @@ begin
 	colorbar(sm, label=L"non-dimensional time, $\gamma t$", extend="max")
 	
 	# set equal axes
-	plt.gca().set_aspect("equal")
 	xlim([-1e-2, 1])
 	ylim([-1e-2, 1])
+	plt.gca().set_aspect("equal")
 	
 	tight_layout()
 	savefig("phase_plane.pdf", format="pdf", bbox_inches="tight")
@@ -297,7 +294,7 @@ end
 # ╔═╡ 3fab154c-db96-11ea-0ff6-d5252766c2b3
 begin
 	R₀s = range(1.0, 5.0, length=100)
-	figsize = (4.5, 4.0) # used for three plots below.
+	figsize = (4.25, 3.75) # used for three plots below.
 end
 
 # ╔═╡ 4eb12950-db96-11ea-0797-39eb74fe7087
@@ -305,15 +302,17 @@ begin
 	max_i = 1 .- 1 ./ R₀s .* (1 .+ log.(R₀s * u0[1]))
 	
 	figure(figsize=figsize)
-	plot(R₀s, max_i, color="C4")
+	plot(R₀s, max_i, color="C4", clip_on=false)
 	xlabel(L"$\mathcal{R}_0$")
 	ylabel(L"$\max_t$ $[$I$](t)$")
-	xlim([1-1e-3, 5+1e-3])
+	xlim([-1e-3, 5+1e-3])
+	xticks(0:5)
 	ylim(ymin=-1e-3)
+	hlines(u0[2], 0.0, 1.0, clip_on=false, color="C4")
 	title("peak prevalence")
 	tight_layout()
 	
-	text(3.5, 0.1, 
+	text(3.25, 0.15, 
 		LaTeXString(split(sim_settings)[2]), bbox=bbox_props,
 		va="center")
 	# xlim([1.0, maximum(R0)])
@@ -337,13 +336,15 @@ begin
 	end
 	
 	figure(figsize=figsize)
-	plot(R₀s, 1.0 .- s∞s, color="C1", clip_on=false)
+	plot(R₀s, 1.0 .- s∞s, color="C11", clip_on=false)
 	xlabel(L"$\mathcal{R}_0$")
 	ylabel(L"$[$R$]_\infty=1-[$S$]_\infty$")
-	xlim([1-1e-3, 5+1e-3])
+	xlim([-1e-3, 5+1e-3])
 	ylim([-1e-3, 1+1e-3])
 	title("final size")
-	text(3.5, 0.2, 
+	xticks(0:5)
+	hlines(1 - u0[1], 0.0, 1.0, clip_on=false, color="C11")
+	text(3.25, 0.3, 
 		LaTeXString(split(sim_settings)[2]), bbox=bbox_props,
 		va="center")
 	tight_layout()
@@ -352,71 +353,97 @@ begin
 	gcf()
 end
 
+# ╔═╡ 059361fc-dccc-11ea-3689-47d9a3329d80
+begin
+	# define the ODE problem
+	new_time_span = (0.0, 65.0)
+	
+	# goal find time to peak for different Rₒ's. also store Imax
+	time_to_peak = similar(R₀s)
+	Imax = similar(time_to_peak)
+	
+	for (i, R₀) in enumerate(R₀s)
+		prob = ODEProblem(update_f!, u0, new_time_span, [R₀])
+		# numerically solve ODE
+		sol = solve(prob)
+	
+		# find time at peak by grid search
+		ts = range(0.0, R₀ < 2 ? new_time_span[2] : 15.0, length=750) # t-grid
+		new_i = [sol.(t_j)[2] for t_j in ts]
+		time_to_peak[i] = ts[argmax(new_i)]
+		
+		# to make sure we are finding the time to peak, get max I(t)
+		Imax[i] = 1 - 1 / R₀ .* (1 + log(R₀ * u0[1])) # analytical formula for Imax
+		@assert isapprox(maximum(new_i), Imax[i], atol=0.01)
+		@assert isapprox(sol(time_to_peak[i])[1], 1 / R₀, rtol=0.1)
+	end
+	
+	colored = false
+	ymax = 50.0
+	
+	figure(figsize=figsize)
+	ylabel(L"$\alpha$ " * L"$\operatorname{argmax}$" * L" $[$I$](t)$")
+	xlabel(L"$\mathcal{R}_0$")
+	xticks(0:5)
+	if colored
+		for k = 1:length(R₀s)-1
+			plot(R₀s[k:k+1], time_to_peak[k:k+1],
+				color=cmap((Imax[k] + Imax[k+1]) / 2 / 0.5)
+			)
+		end
+		hlines(0.0, 0.0, 1.0, clip_on=false, color=cmap(0.0))
+		sm_new = PyPlot.cm.ScalarMappable(cmap=cmap, 
+		                              norm=plt.Normalize(vmin=0.0, vmax=0.5)
+		)
+		colorbar(sm_new, label=L"$\max$ " * L"$[$I$](t)$")
+	else
+		plot(R₀s[2:end], time_to_peak[2:end], color="C7")
+		hlines(0.0, 0.0, 1.0, clip_on=false, color="C7")
+	end
+	title("time to peak prevalence")
+	xlim([-1e-2, 5+1e-2])
+	ylim([-1e-1, ymax])
+	
+	vlines(1.0, 0.0, ymax, linestyle="--", color="C6", linewidth=2)
+	text(3.25, 15.0, 
+		LaTeXString(split(sim_settings)[2]), bbox=bbox_props,
+		va="center")
+	
+
+	
+	tight_layout()
+	savefig("time_to_first_peak.pdf", format="pdf")
+	gcf()
+end
+
 # ╔═╡ 43b2803c-db97-11ea-0b9c-7f5d0fdff33d
 begin
 	v = 1 .- 1 ./ R₀s
 	
 	figure(figsize=figsize)
-	fill_between(R₀s, v, ones(length(v)), color="C6", alpha=0.4, 
+	fill_between(vcat([0], R₀s), vcat([0], v), ones(length(v)+1), color="C6", alpha=0.4, 
 		label=L"$v>1-\mathcal{R}_0^{-1}$")
-	plot(R₀s, v, color="C6", clip_on=false)
-	plot(R₀s, 1 .- s∞s, color="C1", label=L"$[$R$]_\infty=1-[$S$]_\infty$",
+	plot(vcat([0], R₀s), vcat([0], v), color="C6", clip_on=false)
+	plot(R₀s, 1 .- s∞s, color="C11", label=L"$[$R$]_\infty=1-[$S$]_\infty$",
 		clip_on=false)
+	hlines(1 - u0[1], 0.0, 1.0, clip_on=false, color="C11", zorder=123)
 	xlabel(L"$\mathcal{R}_0$")
 	ylabel("fraction of population")
-	xlim([1-1e-3, 5+1e-3])
+	xlim([-1e-3, 5+1e-3])
+	xticks(0:5)
 	ylim([-1e-3, 1+1e-3])
 	legend(loc="lower right")
+	text(3.25, 0.5,
+		LaTeXString(split(sim_settings)[2]), bbox=bbox_props,
+		va="center")
 	title("herd immunity")
 	tight_layout()
 	savefig("herd_immunity.pdf", format="pdf")
 	gcf()
 end
 
-# ╔═╡ e0ec7372-dc56-11ea-007e-b9e622a0af95
-begin
-	# define the ODE problem
-	new_time_span = (0.0, 65.0)
-	
-	R₀s_new = range(1.17, 5.0, length=150)
-	time_to_peak = similar(R₀s_new)
-	
-	for (i, R₀) in enumerate(R₀s_new)
-		prob = ODEProblem(update_f!, u0, new_time_span, [R₀])
-		# numerically solve ODE
-		sol = solve(prob)
-	
-		# find time at peak by grid search
-		ts = range(0.0, R₀ < 2 ? new_time_span[2] : 15.0, length=500) # t-grid
-		new_i = [sol.(t_j)[2] for t_j in ts]
-		time_to_peak[i] = ts[argmax(new_i)]
-		
-		# to make sure we are finding the time to peak, get max I(t)
-		Imax = 1 - 1 / R₀ .* (1 + log(R₀ * u0[1]))
-		if i != 1
-			continue
-		end
-		@assert maximum(new_i) <= Imax
-		@assert maximum(new_i) >= 0.999 * Imax
-	end
-	
-	ymax = 50.0
-	figure()
-	ylabel(L"$\alpha$" * " argmax " * L"$[$I$](t)$")
-	xlabel(L"$\mathcal{R}_0$")
-	plot(R₀s_new, time_to_peak, color="C7")
-	title("time to peak prevalence")
-	xlim([-1e-3, 5+1e-3])
-	ylim([-1e-1, ymax])
-	hlines(0.0, 0.0, 1.0, clip_on=false, color="C7")
-	vlines(1.0, 0.0, ymax, linestyle="--", color="C6", linewidth=2)
-	text(4.0, 30.0, 
-		LaTeXString(split(sim_settings)[2]), bbox=bbox_props,
-		va="center", ha="center")
-	tight_layout()
-	savefig("time_to_first_peak.pdf", format="pdf")
-	gcf()
-end
+# ╔═╡ ebb20684-dcd6-11ea-1302-cbf94d2bd540
+vcat([0], R₀s)
 
 # ╔═╡ Cell order:
 # ╠═988e2cdc-db85-11ea-006e-398146591b74
@@ -442,7 +469,7 @@ end
 # ╠═4eb12950-db96-11ea-0797-39eb74fe7087
 # ╠═de8c5138-db98-11ea-3942-19e5356d0bcd
 # ╠═7e6e40b0-db96-11ea-195c-837936eaec5a
+# ╠═059361fc-dccc-11ea-3689-47d9a3329d80
 # ╟─3dd997b8-db97-11ea-3fdf-33ba59dcdce6
 # ╠═43b2803c-db97-11ea-0b9c-7f5d0fdff33d
-# ╟─d54ba48e-dc56-11ea-0ac4-8d213422f65f
-# ╠═e0ec7372-dc56-11ea-007e-b9e622a0af95
+# ╠═ebb20684-dcd6-11ea-1302-cbf94d2bd540
