@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.4
+# v0.11.5
 
 using Markdown
 using InteractiveUtils
@@ -15,6 +15,13 @@ md"## stochastic simulation of the SIR model"
 
 # ╔═╡ d30011b2-db9e-11ea-0a84-77f66c5de33b
 md"## draw a network"
+
+# ╔═╡ 51c07944-db9f-11ea-35e3-d9ab257b6bd6
+begin
+	# save graph	
+# 	using Compose, Cairo
+#	Compose.draw(PDF("super_spreader_graph.pdf", 16cm, 16cm), gp)
+end
 
 # ╔═╡ 6da1a832-db99-11ea-0098-9b5872e94312
 begin
@@ -83,17 +90,29 @@ begin
 	        color=time_to_color((t[k] + t[k+1]) / 2, t_max)
 	        )
 	end
-	ylim(ymin=-1e-3)
+	
+	plt.gca().set_aspect("equal")	
+	ylim([-1e-2, 0.4+1e-2])
 	xlim(xmax=1.0+1e-3)
 	
-	plt.gca().set_aspect("equal", adjustable="box")
+	# info
+    bbox_props = Dict(:boxstyle=>"round", :fc=>(1.0, 0.98, 0.98), :ec=>"0.5")
+        #:ec=>"0.5")#, :alpha=0.9)
+    sim_settings = L"$\beta (\mu+\gamma)^{-1}=2$" * "\n" * L"$\mu (\mu+\gamma)^{-1}=0.05$" * "\n" * L"$[$I$]_0=10^{-5}$"
+    @assert u0[2] ≈ 10^(-5)
+    @assert R₀ ≈ 2.0
+	@assert μ_ovr_γ_plus_μ ≈ 0.05
 	
+    text(0.3, 0.3,
+        sim_settings, bbox=bbox_props,
+        va="center")
+
 	ax = plt.gca()
 	divider = mpl_toolkits_axes_grid1.make_axes_locatable(ax)
 	cax = divider.append_axes("right", size="2%", pad=0.05)
 
 	sm = PyPlot.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=0.0, vmax=t_max))
-	colorbar(sm, cax=cax, label=L"time, $(\gamma+\mu)t$", extend="max")
+	colorbar(sm, cax=cax, label="non-dimensional time" * "\n" * L"$(\gamma+\mu)t$", extend="max")
 	tight_layout()
 	savefig("sir_with_demographics.pdf", format="pdf", bbox_inches="tight")
 	gcf()
@@ -146,6 +165,10 @@ begin
 	xlabel(L"non-dimensional time, $\gamma t$")
 	ylabel("# individuals")
 	legend()
+	
+	text(6.0, 25.0,
+        L"\mathcal{R}_0=2", bbox=bbox_props,
+        va="center")
 	# dy = 0.04
 	# x_pos = 21.0
 	# text(x_pos, s[end] + dy, L"$[$S$](t)$", color="C0")
@@ -181,13 +204,6 @@ begin
 	nodefillc = [RGB(0.000000, 0.716877, 0.554419) for i = 1:nv]
 	nodefillc[1] = RGB(1.000000, 0.403746, 0.397903)
 	gp = gplot(g, nodefillc=nodefillc)
-end
-
-# ╔═╡ 51c07944-db9f-11ea-35e3-d9ab257b6bd6
-begin
-	# save graph	
-	using Compose, Cairo
-	Compose.draw(PDF("super_spreader_graph.pdf", 16cm, 16cm), gp)
 end
 
 # ╔═╡ Cell order:
